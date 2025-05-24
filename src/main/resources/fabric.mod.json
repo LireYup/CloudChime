@@ -1,0 +1,41 @@
+{
+	"schemaVersion": 1,
+	"id": "weatherwarn",
+	"version": "${version}",
+	"name": "WeatherNotification",
+	"description": "Report the weather you are now on",
+	"authors": [
+		"Me!"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/weatherwarn/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"lire.weatherwarn.WeatherNotification"
+		],
+		"client": [
+			"lire.weatherwarn.WeatherNotificationClient"
+		]
+	},
+	"mixins": [
+		"weatherwarn.mixins.json",
+		{
+			"config": "weatherwarn.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.16.12",
+		"minecraft": "~1.21.4",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
