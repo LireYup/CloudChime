@@ -4,5 +4,8 @@
   },
   "rain_stop": {
     "sounds": ["cloudchime:rain_stop"]
+  },
+  "thunder": {
+    "sounds": ["cloudchime:thunder"]
   }
 }
