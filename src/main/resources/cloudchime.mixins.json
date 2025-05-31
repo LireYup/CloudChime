@@ -1,6 +1,6 @@
 {
 	"required": true,
-	"package": "lire.weatherwarn.mixin",
+	"package": "lire.cloudchime.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
 		"ExampleMixin"
