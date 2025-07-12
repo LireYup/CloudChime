@@ -10,6 +10,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ExampleMixin {
 	@Inject(at = @At("HEAD"), method = "loadWorld")
 	private void onWorldLoad(CallbackInfo info) {
-		System.out.println("[Cloud Chime] Enabled");
+		// 这里可以保留，但实际日志在CloudChime类中
 	}
 }
