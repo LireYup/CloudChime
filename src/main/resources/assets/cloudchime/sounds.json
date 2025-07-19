@@ -1,11 +1,32 @@
 {
-  "rain_start": {
-    "sounds": ["cloudchime:rain_start"]
+  "small_alarm": {
+    "sounds": [
+      {
+        "name": "cloudchime:small_alarm",
+        "volume": 1.5,
+        "pitch": 1.0,
+        "attenuation_distance": 16
+      }
+    ]
   },
-  "rain_stop": {
-    "sounds": ["cloudchime:rain_stop"]
+  "cheer": {
+    "sounds": [
+      {
+        "name": "cloudchime:cheer",
+        "volume": 1.5,
+        "pitch": 1.0,
+        "attenuation_distance": 16
+      }
+    ]
   },
-  "thunder": {
-    "sounds": ["cloudchime:thunder"]
+  "big_alarm": {
+    "sounds": [
+      {
+        "name": "cloudchime:big_alarm",
+        "volume": 1.5,
+        "pitch": 1.0,
+        "attenuation_distance": 16
+      }
+    ]
   }
 }

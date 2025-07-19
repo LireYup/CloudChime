@@ -1,4 +1,4 @@
-package lire.cloudchime.sound; // 修正包名
+package lire.cloudchime.sound;
 
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -11,20 +11,21 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class CustomSoundManager {
-    private static final Map<String, SoundEvent> CUSTOM_SOUNDS = new HashMap<>();
+    private static final Map<String, SoundEvent> SOUND_REGISTRY = new HashMap<>();
+    // 内置音效白名单
+    private static final Set<String> BUILTIN_SOUNDS = Set.of(
+            "small_alarm", "cheer", "big_alarm"
+    );
 
-    public static void registerSound(String soundName) {
-        // 使用工厂方法创建Identifier
-        Identifier id = Identifier.of("cloudchime", soundName);
-        SoundEvent sound = SoundEvent.of(id);
-        Registry.register(Registries.SOUND_EVENT, id, sound);
-        CUSTOM_SOUNDS.put(soundName, sound);
+    public static void registerSound(String soundName, SoundEvent soundEvent) {
+        SOUND_REGISTRY.put(soundName, soundEvent);
     }
 
     public static SoundEvent getSound(String soundName) {
-        return CUSTOM_SOUNDS.get(soundName);
+        return SOUND_REGISTRY.get(soundName);
     }
 
     public static void loadSoundsFromDirectory(Path soundsDir) {
@@ -36,9 +37,19 @@ public class CustomSoundManager {
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(soundsDir, "*.ogg")) {
             for (Path soundFile : stream) {
                 String fileName = soundFile.getFileName().toString();
-                // 去除扩展名
-                String soundName = fileName.substring(0, fileName.length() - 4);
-                registerSound(soundName);
+                String soundName = fileName.substring(0, fileName.length() - 4); // 移除.ogg扩展名
+
+                // 跳过内置音效文件
+                if (BUILTIN_SOUNDS.contains(soundName)) {
+                    System.out.println("[云语铃音] 跳过内置音效文件: " + soundName);
+                    continue;
+                }
+
+                // 注册自定义音效
+                Identifier id = Identifier.of("cloudchime", soundName);
+                SoundEvent sound = SoundEvent.of(id);
+                Registry.register(Registries.SOUND_EVENT, id, sound);
+                SOUND_REGISTRY.put(soundName, sound);
                 System.out.println("[云语铃音] 注册自定义音效: " + soundName);
             }
         } catch (IOException e) {

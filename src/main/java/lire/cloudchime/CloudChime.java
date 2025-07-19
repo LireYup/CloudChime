@@ -9,19 +9,25 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 
 public class CloudChime implements ModInitializer {
-    // 添加缺失的音效常量
-    public static final SoundEvent RAIN_START_SOUND = SoundEvent.of(Identifier.of("cloudchime", "rain_start"));
-    public static final SoundEvent RAIN_STOP_SOUND = SoundEvent.of(Identifier.of("cloudchime", "rain_stop"));
-    public static final SoundEvent THUNDER_SOUND = SoundEvent.of(Identifier.of("cloudchime", "thunder"));
+    public static final SoundEvent SMALL_ALARM_SOUND = SoundEvent.of(Identifier.of("cloudchime", "small_alarm"));
+    public static final SoundEvent CHEER_SOUND = SoundEvent.of(Identifier.of("cloudchime", "cheer"));
+    public static final SoundEvent BIG_ALARM_SOUND = SoundEvent.of(Identifier.of("cloudchime", "big_alarm"));
 
     @Override
     public void onInitialize() {
         ConfigManager.init();
 
         // 注册内置音效
-        Registry.register(Registries.SOUND_EVENT, Identifier.of("cloudchime", "rain_start"), RAIN_START_SOUND);
-        Registry.register(Registries.SOUND_EVENT, Identifier.of("cloudchime", "rain_stop"), RAIN_STOP_SOUND);
-        Registry.register(Registries.SOUND_EVENT, Identifier.of("cloudchime", "thunder"), THUNDER_SOUND);
+        Registry.register(Registries.SOUND_EVENT, Identifier.of("cloudchime", "small_alarm"), SMALL_ALARM_SOUND);
+        Registry.register(Registries.SOUND_EVENT, Identifier.of("cloudchime", "cheer"), CHEER_SOUND);
+        Registry.register(Registries.SOUND_EVENT, Identifier.of("cloudchime", "big_alarm"), BIG_ALARM_SOUND);
+
+        // 将内置音效添加到音效管理器
+        CustomSoundManager.registerSound("small_alarm", SMALL_ALARM_SOUND);
+        CustomSoundManager.registerSound("cheer", CHEER_SOUND);
+        CustomSoundManager.registerSound("big_alarm", BIG_ALARM_SOUND);
+
+        System.out.println("[云语铃音] 注册内置音效: small_alarm, cheer, big_alarm");
 
         // 加载自定义音效
         CustomSoundManager.loadSoundsFromDirectory(ConfigManager.getSoundsDir());

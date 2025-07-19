@@ -38,6 +38,8 @@ public class ExampleClientMixin {
 		if (!statesInitialized) {
 			handleWorldEnter(player, world, isRaining, isThundering);
 			statesInitialized = true;
+			lastRainingState = isRaining;
+			lastThunderingState = isThundering;
 			return;
 		}
 
@@ -49,7 +51,7 @@ public class ExampleClientMixin {
 				triggerEvent("thunder_stop", player, world);
 			}
 			lastThunderingState = isThundering;
-			lastRainingState = isRaining; // 同步更新下雨状态
+			lastRainingState = isThundering || isRaining; // 同步更新下雨状态
 			return;
 		}
 
@@ -76,10 +78,6 @@ public class ExampleClientMixin {
 		} else if (isRaining) {
 			triggerEvent("enter_raining", player, world);
 		}
-
-		// 更新状态
-		lastRainingState = isRaining;
-		lastThunderingState = isThundering;
 	}
 
 	@Unique
@@ -109,13 +107,28 @@ public class ExampleClientMixin {
 			return;
 		}
 
+		// 添加详细的调试信息
+		System.out.println("[云语铃音] 播放音效: " + soundName);
+		System.out.println("[云语铃音] 音效ID: " + sound.id());
+		System.out.println("[云语铃音] 玩家位置: (" + player.getX() + ", " + player.getY() + ", " + player.getZ() + ")");
+
+		// 获取主音量设置
+		float masterVolume = MinecraftClient.getInstance().options.getSoundVolume(SoundCategory.MASTER);
+		System.out.println("[云语铃音] 主音量: " + masterVolume);
+
+		// 使用主音量类别
+		float volume = 1.0F; // 使用标准音量
+		float pitch = 0.8F + world.random.nextFloat() * 0.4F;
+
 		world.playSound(
 				player,
 				player.getX(), player.getY(), player.getZ(),
 				sound,
-				SoundCategory.AMBIENT,
-				1.0F,
-				0.8F + world.random.nextFloat() * 0.4F
+				SoundCategory.MASTER, // 改为主音量
+				volume,
+				pitch
 		);
+
+		System.out.println("[云语铃音] 音效播放请求已发送 (音量: " + volume + ", 音调: " + pitch + ")");
 	}
 }
