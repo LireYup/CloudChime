@@ -17,7 +17,6 @@ public class ConfigManager {
     private static final Path MAIN_CONFIG = CONFIG_DIR.resolve("cloudchime.json");
     private static final Path EVENTS_DIR = CONFIG_DIR.resolve("events");
     private static final Path SOUNDS_DIR = CONFIG_DIR.resolve("sounds");
-
     private static MainConfig mainConfig;
     private static final Map<String, EventConfig> eventConfigs = new HashMap<>();
     private static final Random random = new Random();
@@ -28,25 +27,34 @@ public class ConfigManager {
             Files.createDirectories(CONFIG_DIR);
             Files.createDirectories(EVENTS_DIR);
             Files.createDirectories(SOUNDS_DIR);
-
             // 加载或创建主配置
             if (Files.exists(MAIN_CONFIG)) {
                 mainConfig = GSON.fromJson(new FileReader(MAIN_CONFIG.toFile()), MainConfig.class);
+                // 检查并添加可能缺失的新字段（向后兼容）
+                boolean needsSave = false;
+                if (mainConfig.greeting == null) {
+                    mainConfig.greeting = "§b[云语铃音] §f天气监测已启动"; // 默认值
+                    needsSave = true;
+                }
+                if (mainConfig.whether_greeting == null) { // Boolean对象可以为null
+                    mainConfig.whether_greeting = false; // 默认值
+                    needsSave = true;
+                }
+                if (needsSave) {
+                    saveMainConfig();
+                }
             } else {
-                mainConfig = new MainConfig();
+                mainConfig = new MainConfig(); // 构造函数会设置默认值
                 saveMainConfig();
             }
-
             // 首次启动时提取默认资源
             if (mainConfig.first_launch) {
                 extractDefaultResources();
                 mainConfig.first_launch = false;
                 saveMainConfig();
             }
-
             // 加载所有事件配置
             loadEventConfigs();
-
         } catch (IOException e) {
             System.err.println("[云语铃音] 配置初始化失败: " + e.getMessage());
             mainConfig = new MainConfig(); // 使用默认配置
@@ -54,18 +62,16 @@ public class ConfigManager {
     }
 
     private static void extractDefaultResources() throws IOException {
-        // 提取默认音效 - 使用新文件名
+        // 提取默认音效
         extractResource("/assets/cloudchime/sounds/small_alarm.ogg", SOUNDS_DIR.resolve("small_alarm.ogg"));
         extractResource("/assets/cloudchime/sounds/cheer.ogg", SOUNDS_DIR.resolve("cheer.ogg"));
         extractResource("/assets/cloudchime/sounds/big_alarm.ogg", SOUNDS_DIR.resolve("big_alarm.ogg"));
-
         // 提取默认事件配置
         String[] eventFiles = {
                 "enter_raining.json", "enter_thundering.json",
                 "rain_start.json", "rain_stop.json",
                 "thunder_start.json", "thunder_stop.json"
         };
-
         for (String file : eventFiles) {
             extractResource("/assets/cloudchime/default_configs/" + file, EVENTS_DIR.resolve(file));
         }
@@ -84,7 +90,6 @@ public class ConfigManager {
     private static void loadEventConfigs() throws IOException {
         File[] eventFiles = EVENTS_DIR.toFile().listFiles((dir, name) -> name.endsWith(".json"));
         if (eventFiles == null) return;
-
         for (File file : eventFiles) {
             String eventName = file.getName().replace(".json", "");
             try (FileReader reader = new FileReader(file)) {
@@ -125,6 +130,19 @@ public class ConfigManager {
         return config.sounds[random.nextInt(config.sounds.length)];
     }
 
+    // 新增：获取问候语消息
+    public static String getGreetingMessage() {
+        // 即使 greeting 为 null (理论上不应发生，但防御性编程)，也返回一个默认值
+        return mainConfig.greeting != null ? mainConfig.greeting : "§b[云语铃音] §f天气监测已启动";
+    }
+
+    // 新增：检查是否启用问候语
+    public static boolean isGreetingEnabled() {
+        // 如果 mainConfig 未初始化或 whether_greeting 为 null，则默认不启用
+        return mainConfig != null && mainConfig.whether_greeting != null && mainConfig.whether_greeting;
+    }
+
+
     public static Path getSoundsDir() {
         return SOUNDS_DIR;
     }
@@ -134,6 +152,9 @@ public class ConfigManager {
         public boolean enabled = true;
         public boolean first_launch = true;
         public Map<String, Boolean> events = new HashMap<>();
+        // 新增字段
+        public String greeting = "§b[云语铃音] §f天气监测已启动"; // 默认问候语
+        public Boolean whether_greeting = false; // Boolean对象允许null，用于区分未设置和false
 
         public MainConfig() {
             // 默认启用所有事件
@@ -143,6 +164,7 @@ public class ConfigManager {
             events.put("rain_stop", true);
             events.put("thunder_start", true);
             events.put("thunder_stop", true);
+            // greeting 和 whether_greeting 的默认值已在字段声明时设置
         }
     }
 
