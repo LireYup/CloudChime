@@ -8,11 +8,14 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.world.World; // 确保导入 World 类
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
 
 @Mixin(ClientWorld.class)
 public class ExampleClientMixin {
@@ -61,12 +64,16 @@ public class ExampleClientMixin {
 	@Unique
 	private void handleWorldEnter(ClientPlayerEntity player, ClientWorld world,
 								  boolean isRaining, boolean isThundering) {
-		// 修改：根据配置决定是否发送问候消息
-		if (ConfigManager.isGreetingEnabled()) {
-			String greetingMessage = ConfigManager.getGreetingMessage();
-			player.sendMessage(Text.literal(greetingMessage), false);
+		// 修改：仅在主世界（Overworld）发送问候消息
+		RegistryKey<World> dimensionKey = world.getRegistryKey();
+		if (dimensionKey != null && dimensionKey.equals(World.OVERWORLD)) {
+			// 根据配置决定是否发送问候消息
+			if (ConfigManager.isGreetingEnabled()) {
+				String greetingMessage = ConfigManager.getGreetingMessage();
+				player.sendMessage(Text.literal(greetingMessage), false);
+			}
 		}
-		// 原有逻辑保持不变：根据天气触发事件
+		// 原有逻辑保持不变：根据天气触发事件 (这部分事件触发本身没有限制维度，如果需要也可以加上判断)
 		if (isThundering) {
 			triggerEvent("enter_thundering", player, world);
 		} else if (isRaining) {

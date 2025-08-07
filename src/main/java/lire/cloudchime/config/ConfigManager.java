@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.nio.charset.StandardCharsets;
 
 public class ConfigManager {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -92,7 +93,8 @@ public class ConfigManager {
         if (eventFiles == null) return;
         for (File file : eventFiles) {
             String eventName = file.getName().replace(".json", "");
-            try (FileReader reader = new FileReader(file)) {
+            // 使用 InputStreamReader 并指定 UTF-8 编码
+            try (InputStreamReader reader = new InputStreamReader(Files.newInputStream(file.toPath()), StandardCharsets.UTF_8)) {
                 eventConfigs.put(eventName, GSON.fromJson(reader, EventConfig.class));
             }
         }
